@@ -1,0 +1,62 @@
+name: sheep-tube
+
+services:
+  # api_server:
+  #   build: ./server/api/Dockerfile
+  #   container_name: api_server
+  #   restart: unless-stopped
+  #   ports:
+  #     - "443:443"
+  #   networks:
+  #     internal_network:
+  #       ipv4_address: 172.18.0.2
+
+  # web_server:
+  #   image: ubuntu:latest
+  #   container_name: web_server
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+
+  db:
+    image: postgres
+    container_name: sheeptube_pgdb
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: p@ssw0rd
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      sheep-tube-network:
+        ipv4_address: 172.20.0.3
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: sheeptube_pgadmin4
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: p@ssw0rd
+      PGADMIN_LISTEN_PORT: 5050
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      sheep-tube-network:
+        ipv4_address: 172.20.0.4
+
+volumes:
+  pgdata:
+  pgadmin-data:
+
+networks:
+  sheep-tube-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
